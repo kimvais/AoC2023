@@ -189,11 +189,14 @@ module AStar =
 
 let inline (%!) a b = (a % b + b) % b
 let inline (/%) (x: int64) = fun y -> Math.DivRem(x, y)
-let inline (/%?) (x: int64) = fun y -> 
-    let d, r = Math.DivRem(x, y)
-    match r with
-    | 0L -> d
-    | _ -> failwith $"Division ended with remainder %d{r}"
+
+let inline (/%?) (x: int64) =
+    fun y ->
+        let d, r = Math.DivRem(x, y)
+
+        match r with
+        | 0L -> d
+        | _ -> failwith $"Division ended with remainder %d{r}"
 
 let (|Regex|_|) pattern s =
     let m = Regex.Match(s, pattern)
