@@ -1,7 +1,7 @@
 ﻿module AoC2023.Day1
 
 open System.Text.RegularExpressions
-open AoC2023.Utils
+open AoC2023.Prelude
 
 let isDigit c = 0L <= c && c <= 9L
 

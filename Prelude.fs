@@ -1,4 +1,4 @@
-﻿module AoC2023.Utils
+﻿module AoC2023.Prelude
 
 open System
 open System.Collections.Generic

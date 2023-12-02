@@ -1,6 +1,6 @@
 ﻿module AoC2023.Main
 
-open AoC2023.Utils
+open AoC2023.Prelude
 open AoC2023
 
 [<EntryPoint>]
