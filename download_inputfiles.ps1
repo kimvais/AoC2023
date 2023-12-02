@@ -4,7 +4,7 @@ $webSession = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
 $webSession.Cookies.Add($URI,[System.Net.Cookie]::new("session", $Env:AOC_SESSION_COOKIE))
 $DATE = Get-Date
 for ($i = 1; $i -le $DATE.Day; $i++) {
-    $fileUrl = "https://adventofcode.com/$($DATE.Year)/day/$i/input"
+    $fileUrl = "https://adventofcode.com/$( $DATE.Year )/day/$i/input"
     Write-Host "Downloading $fileUrl"
     try
     {

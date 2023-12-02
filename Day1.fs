@@ -29,7 +29,9 @@ let replaceNameWithNumber =
     | "nine" -> 9L
 
 
-let numbersPatterns = "one|two|three|four|five|six|seven|eight|nine|zero"
+let numbersPatterns =
+    "one|two|three|four|five|six|seven|eight|nine|zero"
+
 let rx = Regex(numbersPatterns)
 let rxr2l = Regex(numbersPatterns, RegexOptions.RightToLeft)
 
