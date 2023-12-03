@@ -26,3 +26,13 @@ let ``day2, part2`` () =
     Day2.part2 "test2" () |> should equal 2286L
     Day2.part2 "2" () |> should equal 72970L
 
+[<Fact>]
+let ``day3, part1`` () =
+    Day3.part1 "test3" () |> should equal 8L
+    Day3.part1 "3" () |> should equal 3099L
+    
+[<Fact>]
+let ``day3, part2`` () =
+    Day3.part2 "test3" () |> should equal 2286L
+    Day3.part2 "3" () |> should equal 72970L
+
