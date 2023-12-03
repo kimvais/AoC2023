@@ -61,7 +61,7 @@ let main argv =
     | "25" -> Day25.part1 "25" ()
     | "25b" -> Day25.part2 "25" ()
     *)
-    | "test" -> Day3.part1 "test3" ()
+    | "test3b" -> Day3.part2 "test3" ()
     |> printfn "%d"
 
     0
