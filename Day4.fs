@@ -50,6 +50,7 @@ let part1 fn () =
     let cards = readInput fn |> Seq.map parseCard
     cards |> Seq.map scoreCard |> Seq.sum
 
+[<TailCall>]
 let rec addCards copies idx n (cards: Map<int,Card>) =
     match n with
     | 0 -> cards
@@ -58,7 +59,8 @@ let rec addCards copies idx n (cards: Map<int,Card>) =
         let card' = {card with Copies = card.Copies + copies}
         let cards' = Map.add idx card' cards
         addCards copies (idx + 1) (n - 1) cards'
-         
+        
+[<TailCall>] 
 let rec scratch idx (cards: Map<int,Card>) =
     let currentCard = cards.[idx]
     match idx with
