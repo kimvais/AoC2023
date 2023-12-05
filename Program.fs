@@ -6,7 +6,7 @@ open AoC2023
 [<EntryPoint>]
 let main argv =
     let day = argv |> getProblem
-
+    let stopWatch = System.Diagnostics.Stopwatch.StartNew()
     match day with
     | "1" -> Day1.part1 "1" ()
     | "1b" -> Day1.part2 "1" ()
@@ -61,7 +61,8 @@ let main argv =
     | "25" -> Day25.part1 "25" ()
     | "25b" -> Day25.part2 "25" ()
     *)
-    | "test" -> Day5.part1 "test5" ()
+    | "test" -> Day5.part2 "test5" ()
     |> printfn "%d"
-
+    stopWatch.Stop()
+    printfn "Ran for %0.3f seconds" stopWatch.Elapsed.TotalSeconds
     0
