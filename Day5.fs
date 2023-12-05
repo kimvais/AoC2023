@@ -50,8 +50,12 @@ let parseInput fn =
 let part1 fn () =
     let seeds, maps = parseInput fn
     solve seeds maps 
+
+let getRanges (seeds: seq<int64 array>) =
+    seeds |> Seq.map (fun [|start; len|] -> Seq.init (int len) (fun v -> (int64 v) + start)) |> Seq.concat
     
 let part2 fn () = 
     let seeds, maps = parseInput fn
-    seeds |> Seq.pairwise |> printfn "%A"
-    solve seeds maps 
+    let seeds' = seeds |> Seq.chunkBySize 2 |> getRanges
+    // printfn "%A" (seeds' |> Seq.length)
+    solve seeds' maps 
