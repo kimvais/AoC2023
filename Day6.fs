@@ -8,7 +8,7 @@ let race (duration, distance) =
     seq { 1L .. duration - 1L }
     |> Seq.map (fun pressed -> (duration - pressed) * pressed)
     |> Seq.filter ((<) distance)
-    |> Seq.length
+    |> Seq.length |> int64
 
 let part1 fn () =
     let input =
