@@ -82,6 +82,9 @@ let printImage boolToString (image: bool[][]) =
 
     printfn ""
 
+let print2d rows =
+    rows |> Seq.iter (fun row -> (row |> Seq.map string |> String.concat "" |> printfn "%s"))
+    
 let rec cartesian inputs =
     match inputs with
     | h :: [] -> List.fold (fun acc elem -> [ elem ] :: acc) [] h
