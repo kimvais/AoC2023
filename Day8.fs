@@ -59,7 +59,7 @@ let part1 fn () =
     let input = readInputDelimByEmptyLine fn
     let instructions = input.[0] |> Array.ofSeq
     let nodes = input.[1] |> splitByLinefeed |> Seq.map (parseNode  >> fun n -> n.Label, n) |> Map.ofSeq
-    let hits = Map.empty.Add("AA", [])
+    let hits = Map.empty.Add("AAA", [])
     traverse check1 nodes instructions {Nodes=[|nodes.["AAA"]|]; Steps=0L; Hits=hits} |> printfn "%A"
     0L
 
