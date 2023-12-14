@@ -24,24 +24,24 @@ let getSymbol =
         
 let printMap rocks =
     rocks |> Seq.iter (fun r -> String.concat "" (r |> Seq.map getSymbol) |> printfn "%s")
-    printfn ""
-    
-let rec recRoll rolled remaining =
+
+[<TailCall>]
+let rec roll' (accumulated: Tile seq, remaining: Tile seq) =
     match Seq.length remaining with
-    | 0 -> rolled
-    | 1 -> Seq.append rolled remaining
+    | 0 -> accumulated
+    | 1 -> Seq.append accumulated remaining
     | _ ->
         let head = Seq.head remaining
         match head with
-        | Cube -> recRoll (Seq.append rolled [head]) (Seq.tail remaining)
+        | Cube -> roll' (Seq.append accumulated [head], Seq.tail remaining)
         | _ ->
-            let newRolled = remaining |> Seq.takeWhile ((<>) Cube) |> Seq.sort
-            recRoll (Seq.concat [rolled; newRolled]) (remaining |> Seq.skip (Seq.length newRolled))
-            
-let roll' line =
-    recRoll Seq.empty<Tile> line
+            let newRolled = Seq.takeWhile ((<>) Cube) remaining |> Seq.sort
+            roll' (Seq.append accumulated newRolled, Seq.skip (Seq.length newRolled) remaining)
+
+let roll line =
+    roll' (Seq.empty<Tile>, line)
    
-let roll = memoize roll'
+// let roll = memoize roll'
 
 let rollWest = Seq.map roll
 let rollEast = Seq.map (Seq.rev >> roll >> Seq.rev)
@@ -50,16 +50,16 @@ let rollSouth = Seq.transpose >> Seq.map (Seq.rev >> roll >> Seq.rev) >> Seq.tra
 
 let spinOnce rocks =
     rocks |> rollNorth |> rollWest |> rollSouth |> rollEast
-
+    
+[<TailCall>]
 let rec spin until rounds rocks =
-    if rounds % 1_000_000 = 0 then printfn "%d %% done" rounds
-    match rounds with
-    | r when r = until -> rocks
-    | r ->
+    if rounds = until then 
+        rocks
+    else
         let rocks' = spinOnce rocks
-        // printMap rocks'
-        spin until (r + 1) rocks'
-        
+        if rounds % 1_000_000 = 0 then printfn "%d %% done" (rounds + 1)
+        spin until (rounds + 1) rocks'
+ 
 let solve rounds fn () =
     let input = readInput fn
     let rocks = input |> Seq.map (Seq.map getShape)
