@@ -114,7 +114,13 @@ let ``day11, part1`` () =
     Day11.solve 2 "test11" () |> should equal 374L
     Day11.solve 2 "11" () |> should equal 9693756L
 
+[<Fact>]
 let ``day11, part2`` () =
     Day11.solve 10 "test11" () |> should equal 1030L
     Day11.solve 100 "test11" () |> should equal 8410L
     Day11.solve 1_000_000 "11" () |> should equal 717878258016L
+
+[<Fact>]
+let ``day14 part1`` () =
+    Day14.part1 "test14" () |> should equal 136L
+    Day14.part1 "14" () |> should equal 108641L
