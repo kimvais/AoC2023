@@ -9,7 +9,6 @@ type Tile =
     | Empty
 
 type Direction = North|South|East|West
-let dirMap = [North;West;South;East]
 
 let getShape =
     function
@@ -24,54 +23,51 @@ let getSymbol =
         | Empty -> "."
         
 let printMap rocks =
-    rocks |> List.iter (fun r -> String.concat "" (r |> List.map getSymbol) |> printfn "%s")
+    rocks |> Seq.iter (fun r -> String.concat "" (r |> Seq.map getSymbol) |> printfn "%s")
     printfn ""
     
 let rec recRoll rolled remaining =
-    match remaining with
-    | [] -> rolled
-    | [x] -> rolled @ [x]
-    | head::rest ->
+    match Seq.length remaining with
+    | 0 -> rolled
+    | 1 -> Seq.append rolled remaining
+    | _ ->
+        let head = Seq.head remaining
         match head with
-        | Cube -> recRoll (rolled @ [head]) rest
+        | Cube -> recRoll (Seq.append rolled [head]) (Seq.tail remaining)
         | _ ->
-            let newRolled = remaining |> List.takeWhile ((<>) Cube) |> List.sort
-            recRoll (rolled @ newRolled) (remaining |> List.skip (List.length newRolled))
+            let newRolled = remaining |> Seq.takeWhile ((<>) Cube) |> Seq.sort
+            recRoll (Seq.concat [rolled; newRolled]) (remaining |> Seq.skip (Seq.length newRolled))
             
 let roll' line =
-    recRoll List.empty<Tile> line
+    recRoll Seq.empty<Tile> line
    
 let roll = memoize roll'
 
-let rec spinOnce dirs rocks =
-    match dirs with
-    | [] -> rocks
-    | dir::rem ->
-        let rocks' =
-            match dir with
-            | West -> rocks |> List.map roll
-            | East -> rocks |> List.map (List.rev >> roll >> List.rev)
-            | North -> rocks |> List.transpose |> List.map roll |> List.transpose
-            | South -> rocks |> List.transpose |> List.map (List.rev >> roll >> List.rev) |> List.transpose
-        spinOnce rem rocks'
-   
+let rollWest = Seq.map roll
+let rollEast = Seq.map (Seq.rev >> roll >> Seq.rev)
+let rollNorth = Seq.transpose >> Seq.map roll >> Seq.transpose
+let rollSouth = Seq.transpose >> Seq.map (Seq.rev >> roll >> Seq.rev) >> Seq.transpose
+
+let spinOnce rocks =
+    rocks |> rollNorth |> rollWest |> rollSouth |> rollEast
+
 let rec spin until rounds rocks =
-    if rounds % 100_000 = 0 then printfn "%d" rounds
+    if rounds % 1_000_000 = 0 then printfn "%d %% done" rounds
     match rounds with
     | r when r = until -> rocks
     | r ->
-        let rocks' = spinOnce dirMap rocks
+        let rocks' = spinOnce rocks
         // printMap rocks'
         spin until (r + 1) rocks'
         
 let solve rounds fn () =
     let input = readInput fn
-    let rocks = input |> Seq.map (Seq.map getShape >> List.ofSeq) |> List.ofSeq
-    spin rounds 0 rocks
+    let rocks = input |> Seq.map (Seq.map getShape)
+    spin rounds 0 rocks |> printMap
     0L
 
 let part1 fn () =
     solve 1 fn ()
     
 let part2 fn () =
-    solve 1_000_000 fn ()
+    solve 100_000_000 fn ()
