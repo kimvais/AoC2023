@@ -7,6 +7,8 @@ type Shape =
     | Round
     | Cube
 
+type Direction = North|South|East|West
+
 type Rock = { Shape: Shape; Row: int; Col: int }
 
 let getShape =
@@ -20,33 +22,60 @@ let getLoad dim rock =
     | Round -> dim - rock.Row |> int64
     | _ -> 0L
 
-let getRocksInColumn rocks c =
-    let rocks' = rocks |> Seq.filter (fun r -> r.Col = c) |> Seq.sortBy _.Row |> List.ofSeq
-    c,rocks'
+let isInCol col rock =
+    rock.Col = col
 
-let columnize cols rocks =
-    seq [0..(cols - 1)] |> Seq.map (getRocksInColumn rocks) |> Map.ofSeq
+let isInRow row rock =
+    rock.Row = row
     
-let rec rollColumnNorth moved remaining =
+let getRocksInColumn rocks c =
+    let rocks' = rocks |> Seq.filter (isInCol c) |> Seq.sortBy _.Row |> List.ofSeq
+    c,rocks'
+    
+let getRocksInRow rocks r =
+    let rocks' = rocks |> Seq.filter (isInRow r) |> Seq.sortBy _.Col |> List.ofSeq
+    r,rocks'
+
+let organize direction rocks =
+    let cols = rocks |> Seq.map _.Col |> Seq.max
+    let rows = rocks |> Seq.map _.Row |> Seq.max
+    match direction with
+    |North ->
+        seq [0..cols] |> Seq.map (getRocksInColumn rocks) |> Map.ofSeq
+    |South ->
+        seq [0..cols] |> Seq.map (getRocksInColumn rocks) |> Seq.rev |> Map.ofSeq
+    |East ->
+        seq [0..rows] |> Seq.map (getRocksInRow rocks) |> Map.ofSeq
+    |West ->
+        seq [0..rows] |> Seq.map (getRocksInRow rocks) |> Seq.rev |> Map.ofSeq
+        
+let rec rollColumn dir moved remaining =
+     let increment =
+         match dir with
+         |North|East -> 1
+         |South|West -> -1
+     let getPos =
+         match dir with
+         |North|South -> (function r -> r.Row)
+         |East|West -> (function r -> r.Col)
      match remaining with
          | [] -> moved
          | head :: tail ->
              let row = moved |> Seq.tryLast |> function
-                 | Some r -> r.Row
-                 | None -> -1
+                 | Some r -> getPos r + increment
+                 | None -> 0 
              let rock =
                  match head.Shape with
-                 | Round -> {head with Row=row + 1}
+                 | Round -> {head with Row=row}
                  | Cube -> head
-             rollColumnNorth (moved @ [rock]) tail
+             rollColumn North (moved @ [rock]) tail
          
-let rollNorth rockmap =
-    rockmap |> Map.map (fun _ rocks -> rollColumnNorth List.empty<Rock> rocks)
+let roll dir rockmap =
+    rockmap |> Map.map (fun _ rocks -> rollColumn dir List.empty<Rock> rocks)
     
 let part1 fn () =
     let input = readInput fn
     let height = Seq.length input
-    let width = Seq.length (Seq.head input)
     let rocks =
         input
         |> Seq.mapi (fun row arr ->
@@ -57,8 +86,8 @@ let part1 fn () =
                 | None -> None))
         |> Seq.concat
         |> Seq.choose id
-        |> (columnize width)
+        |> (organize North)
     
-    rocks |> rollNorth |> Map.values |> Seq.concat |> Seq.map (getLoad height) |> Seq.sum
+    rocks |> roll North |> Map.values |> Seq.concat |> Seq.map (getLoad height) |> Seq.sum
 
 let part2 fn () = 0L
