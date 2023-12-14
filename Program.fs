@@ -67,7 +67,7 @@ let main argv =
     | "25" -> Day25.part1 "25" ()
     | "25b" -> Day25.part2 "25" ()
     *)
-    | "test" -> Day14.solve 999 "test14" ()
+    | "test" -> Day14.solve 100_000_000 "test14" ()
     |> printfn "%d"
     stopWatch.Stop()
     printfn "Ran for %0.3f seconds" stopWatch.Elapsed.TotalSeconds

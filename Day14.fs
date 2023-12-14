@@ -1,5 +1,6 @@
 ﻿module AoC2023.Day14
 
+open System.Diagnostics
 open System.Threading
 open AoC2023.Prelude
 
@@ -23,46 +24,55 @@ let getSymbol =
         | Empty -> "."
         
 let printMap rocks =
-    rocks |> List.iter (fun r -> String.concat "" (r |> List.map getSymbol) |> printfn "%s")
+    rocks |> Array.iter (fun r -> String.concat "" (r |> Array.map getSymbol) |> printfn "%s")
 
 [<TailCall>]
-let rec roll' (accumulated: Tile list, remaining: Tile list) =
-    match List.length remaining with
+let rec roll' (accumulated: Tile array, remaining: Tile array) =
+    match Array.length remaining with
     | 0 -> accumulated
-    | 1 -> List.append accumulated remaining
+    | 1 -> Array.append accumulated remaining
     | _ ->
-        let head = List.head remaining
+        let head = Array.head remaining
         match head with
-        | Cube -> roll' (List.append accumulated [head], List.tail remaining)
+        | Cube -> roll' (Array.append accumulated [|head|], Array.tail remaining)
         | _ ->
-            let newRolled = List.takeWhile ((<>) Cube) remaining |> List.sort
-            roll' (List.append accumulated newRolled, List.skip (List.length newRolled) remaining)
+            let newRolled = Array.takeWhile ((<>) Cube) remaining |> Array.sort
+            roll' (Array.append accumulated newRolled, Array.skip (Array.length newRolled) remaining)
 
 let roll line =
-    roll' (List.empty<Tile>, line)
+    roll' (Array.empty<Tile>, line)
    
 // let roll = memoize roll'
 
-let rollWest = List.map roll
-let rollEast = List.map (List.rev >> roll >> List.rev)
-let rollNorth = List.transpose >> List.map roll >> List.transpose
-let rollSouth = List.transpose >> List.map (List.rev >> roll >> List.rev) >> List.transpose
+let rollWest = Array.map roll
+let rollEast = Array.map (Array.rev >> roll >> Array.rev)
+let rollNorth = Array.transpose >> Array.map roll >> Array.transpose
+let rollSouth = Array.transpose >> Array.map (Array.rev >> roll >> Array.rev) >> Array.transpose
 
 let spinOnce rocks =
     rocks |> rollNorth |> rollWest |> rollSouth |> rollEast
     
-[<TailCall>]
-let rec spin until rounds rocks =
-    if rounds = until then 
-        rocks
-    else
-        let rocks' = spinOnce rocks
-        if rounds % 1_000_000 = 0 then printfn "%d %% done" (rounds + 1)
-        spin until (rounds + 1) rocks'
- 
+
+let spin until rounds rocks =
+    let progress = until / 100
+    let stopwatch = Stopwatch()
+    stopwatch.Start()
+    
+    let rec spinInternal rounds rocks =
+        if rounds = until then 
+            rocks
+        else
+            let rocks' = spinOnce rocks
+            if rounds % progress = 0 then 
+                stopwatch.Stop()
+                printfn "%d%% done, lap time: %A" (rounds/progress) stopwatch.Elapsed
+                stopwatch.Restart() 
+            spinInternal (rounds + 1) rocks'
+    spinInternal rounds rocks
+     
 let solve rounds fn () =
     let input = readInput fn
-    let rocks = input |> List.ofSeq |> List.map (Seq.map getShape >> List.ofSeq)
+    let rocks = input |> Array.ofSeq |> Array.map (Seq.map getShape >> Array.ofSeq)
     spin rounds 0 rocks |> printMap
     0L
 
