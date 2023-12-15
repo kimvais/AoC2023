@@ -124,3 +124,8 @@ let ``day11, part2`` () =
 let ``day14 part1`` () =
     Day14.part1 "test14" () |> should equal 136L
     Day14.part1 "14" () |> should equal 108641L
+
+[<Fact>]
+let ``day15, part1`` () =
+    Day15.hash "HASH" |> should equal 52L
+    Day15.part1 "test15" () |> should equal 1320L
