@@ -44,13 +44,13 @@ let main argv =
     | "14b" -> Day14.part2 "14" ()
     | "15" -> Day15.part1 "15" ()
     | "15b" -> Day15.part2 "15" ()
+    | "18" -> Day18.part1 "18" ()
+    | "18b" -> Day18.part2 "18" ()
     (*
     | "16" -> Day16.part1 "16" ()
     | "16b" -> Day16.part2 "16" ()
     | "17" -> Day17.part1 "17" ()
     | "17b" -> Day17.part2 "17" ()
-    | "18" -> Day18.part1 "18" ()
-    | "18b" -> Day18.part2 "18" ()
     | "19" -> Day19.part1 "19" ()
     | "19b" -> Day19.part2 "19" ()
     | "20" -> Day20.part1 "20" ()
@@ -67,7 +67,7 @@ let main argv =
     | "25" -> Day25.part1 "25" ()
     | "25b" -> Day25.part2 "25" ()
     *)
-    | "test" -> Day15.part2 "test15" ()
+    | "test" -> Day18.part1 "test18" ()
     |> printfn "%d"
     stopWatch.Stop()
     printfn "Ran for %0.3f seconds" stopWatch.Elapsed.TotalSeconds
