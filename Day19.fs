@@ -48,10 +48,34 @@ let parseRule =
     | Regex @"([axms])<(\d+):A" [ c; v ] -> { Test = Some(Lt(getCat c, int64 v)); Dest = Reject }
     | Regex @"([axms])>(\d+):([a-z]+)" [ c; v; wf ] -> { Test = Some(Gt(getCat c, int64 v)); Dest = Workflow wf }
     | Regex @"([axms])<(\d+):([a-z]+)" [ c; v; wf ] -> { Test = Some(Lt(getCat c, int64 v)); Dest = Workflow wf }
-    | Regex @"([a-z]+)" [wf] -> {Test=None; Dest=Workflow wf}
+    | Regex @"([a-z]+)" [ wf ] -> { Test = None; Dest = Workflow wf }
     | Regex @"A" [] -> { Test = None; Dest = Accept }
-    | Regex @"R" [] -> { Test = None; Dest = Accept }
+    | Regex @"R" [] -> { Test = None; Dest = Reject }
 
+let getAttr item cat =
+    match cat with
+    | Looks -> item.Looks
+    | Musicality -> item.Musicality
+    | Aerodynamics -> item.Aerodynamics
+    | Shininess -> item.Shininess
+
+let checkRule item rule =
+    let destination = rule.Dest
+    match rule.Test with
+    | None -> Some destination
+    | Some test ->
+        match test with
+        | Gt(cat, value) -> if getAttr item cat > value then Some destination else None
+        | Lt(cat, value) -> if getAttr item cat < value then Some destination else None
+
+let rec checkRules (flows: Map<string,Rule array>) currentLabel item =
+    let rules = flows[currentLabel]
+    let destination = rules |> Seq.pick (checkRule item)
+    match destination with
+    | Reject -> false
+    | Accept -> true
+    | Workflow wf -> checkRules flows wf item
+    
 let parseWorkFlow s =
     let m = workFlowRx.Match(s)
     let rules = m.Groups["rules"].Value.Split(',')
@@ -68,6 +92,9 @@ let parseItem s =
       Aerodynamics = v "a"
       Shininess = v "s" }
 
+let countItemValue item =
+    item.Looks + item.Musicality + item.Aerodynamics + item.Shininess
+    
 let part1 fn () =
     let [| flowInput; itemInput |] = readInputDelimByEmptyLine fn
 
@@ -78,8 +105,7 @@ let part1 fn () =
         |> Map.ofArray
 
     let items = itemInput |> splitByLinefeed |> Array.map parseItem
-    printfn "%A" flows
-    printfn "%A" items
-    0L
+    printfn "%A" (Array.last items)
+    items |> Seq.filter (checkRules flows "in") |> Seq.map countItemValue |> Seq.sum
 
 let part2 fn () = 0L
